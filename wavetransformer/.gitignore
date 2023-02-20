@@ -1,14 +1,5 @@
 !coco_caption/pycocoevalcap/spice/lib/*
 
-# Ignore settings
-settings/*
-!settings/main_settings.yaml
-!settings/dirs_and_files.yaml
-!settings/model.yaml
-!settings/method.yaml
-!settings/feature_extraction.yaml
-!settings/dataset_creation.yaml
-
 # Ignore job files
 job_puhti*
 
@@ -217,7 +208,6 @@ fabric.properties
 # Android studio 3.1+ serialized cache file
 .idea/caches/build_file_checksums.ser
 
-outputs/*
 first_full_results/*
 # Stanford CoreNLP jar files
 stanford-corenlp-3.6.0.jar
@@ -227,7 +217,6 @@ stanford-corenlp-3.6.0-models.jar
 local_job_baseline.sh
 local_job_dcase.sh
 local_job_lm.sh
-outputs/
 
 # job bash script
 job*.sh
