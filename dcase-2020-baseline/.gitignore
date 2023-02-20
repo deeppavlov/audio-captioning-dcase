@@ -1,6 +1,5 @@
 ### Audio captioning DCASE baseline specific rules
 
-data/*
 !data/.dummy
 !data/clotho_audio_files/.dummy
 !data/clotho_audio_files/development/.dummy
