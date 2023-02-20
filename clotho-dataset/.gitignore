@@ -199,9 +199,10 @@ fabric.properties
 .idea/caches/build_file_checksums.ser
 
 ## Project specific
-data/*
 !data/.dummy
+!data/WT_pickles/.dummy
 !data/audio/.dummy
 *.7z
+
 
 # EOF
