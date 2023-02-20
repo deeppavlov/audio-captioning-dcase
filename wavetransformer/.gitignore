@@ -217,10 +217,6 @@ fabric.properties
 # Android studio 3.1+ serialized cache file
 .idea/caches/build_file_checksums.ser
 
-## Project specific
-data/*
-!data/.dummy
-
 outputs/*
 first_full_results/*
 # Stanford CoreNLP jar files
@@ -228,7 +224,6 @@ stanford-corenlp-3.6.0.jar
 stanford-corenlp-3.6.0-models.jar
 
 .idea/
-data
 local_job_baseline.sh
 local_job_dcase.sh
 local_job_lm.sh
