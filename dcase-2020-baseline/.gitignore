@@ -2,6 +2,10 @@
 
 data/*
 !data/.dummy
+!data/clotho_audio_files/.dummy
+!data/clotho_audio_files/development/.dummy
+!data/clotho_audio_files/evaluation/.dummy
+!data/clotho_csv_files/.dummy
 outputs/*
 !outputs/.dummy
 
