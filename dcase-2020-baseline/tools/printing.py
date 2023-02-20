@@ -6,7 +6,6 @@ from pathlib import Path
 from pprint import PrettyPrinter
 
 from loguru import logger
-from loguru._handler import StrRecord
 from _io import TextIOWrapper
 
 __author__ = 'Konstantinos Drossos -- Tampere University'
@@ -15,7 +14,7 @@ __all__ = ['get_pretty_printer',
            'init_loggers']
 
 
-def _rotation_logger(x: StrRecord,
+def _rotation_logger(x,
                      _: TextIOWrapper) \
         -> bool:
     """Callable to determine the rotation of files in logger.

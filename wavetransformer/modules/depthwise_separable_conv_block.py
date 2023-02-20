@@ -7,7 +7,7 @@ from typing import Union, Tuple, MutableSequence, List, Optional
 from torch import Tensor
 from torch.nn import Module, Conv2d, BatchNorm2d, LeakyReLU
 
-from tools.various import apply_layer
+from wt_tools.various import apply_layer
 
 __author__ = 'Konstantinos Drossos -- Tampere University'
 __docformat__ = 'reStructuredText'

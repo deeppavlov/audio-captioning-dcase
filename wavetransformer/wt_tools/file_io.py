@@ -30,7 +30,7 @@ def dump_numpy_object(np_obj, file_name, ext='.npy', replace_ext=True):
     :param replace_ext: Replace extension?
     :type replace_ext: bool
     """
-    f_name = file_name.with_suffix(ext) if replace_ext else file_name
+    f_name = file_name + ext if replace_ext else file_name
     np.save(str(f_name), np_obj)
 
 

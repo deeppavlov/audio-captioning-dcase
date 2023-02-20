@@ -7,7 +7,7 @@ from functools import reduce
 from torch.nn import Module, Sequential, ReLU, \
     BatchNorm2d, MaxPool2d, Dropout2d
 
-from tools.various import apply_layer
+from wt_tools.various import apply_layer
 from .depthwise_separable_conv_block import DepthWiseSeparableConvBlock
 
 __author__ = 'Konstantinos Drossos -- Tampere University'

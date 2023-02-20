@@ -1,13 +1,13 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from tools import argument_parsing
-from tools import file_io
-from tools import captions_functions
-from tools import csv_functions
-from tools import model
-from tools import printing
-from tools import various
+from wt_tools import argument_parsing
+from wt_tools import file_io
+from wt_tools import captions_functions
+from wt_tools import csv_functions
+from wt_tools import model
+from wt_tools import printing
+from wt_tools import various
 
 __author__ = 'Konstantinos Drossos -- Tampere University'
 __docformat__ = 'reStructuredText'
