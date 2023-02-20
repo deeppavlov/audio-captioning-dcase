@@ -73,19 +73,18 @@ def get_model(settings_model: MutableMapping[str, Union[str, MutableMapping]],
 
     model = model(**kwargs)
 
-    if settings_model['use_pre_trained_model']:
-        state_dict = pt_load(Path(
-            settings_io['root_dirs']['outputs'],
-            settings_io['model']['model_dir'],
-            settings_io['model']['pre_trained_model_name']
-        ), map_location=device)
+    state_dict = pt_load(Path(
+        settings_io['root_dirs']['outputs'],
+        settings_io['model']['model_dir'],
+        settings_io['model']['pre_trained_model_name']
+    ), map_location=device)
 
-        new_state_dict = OrderedDict()
-        for k, v in state_dict.items():
-            name = k.replace("module.", "")  # remove `module.`
-            new_state_dict[name] = v
-        # load params
-        model.load_state_dict(new_state_dict)
+    new_state_dict = OrderedDict()
+    for k, v in state_dict.items():
+        name = k.replace("module.", "")  # remove `module.`
+        new_state_dict[name] = v
+    # load params
+    model.load_state_dict(new_state_dict)
 
     return model
 
