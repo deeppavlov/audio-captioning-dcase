@@ -153,8 +153,8 @@ def check_data_for_split(dir_audio: Path, dir_data: Path, dir_root: Path,
                     raise ValueError('Numpy object {} has wrong characters '
                                      'indices.'.format(data_file))
 
+        print(f"----------------------------------------------{f_stem}, {file_name_audio.stem}----------------------------------------------------")
         if not audio_has_data_files:
-            print(f"----------------------------------------------{f_stem}, {file_name_audio.stem}----------------------------------------------------")
             raise FileExistsError('Audio file {} has no associated data.'.format(
                 file_name_audio))
 
