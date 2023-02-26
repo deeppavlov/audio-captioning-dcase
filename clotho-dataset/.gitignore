@@ -200,6 +200,8 @@ fabric.properties
 
 ## Project specific
 !data/.dummy
+!data/data_splits/development/.dummy
+!data/data_splits/evaluation/.dummy
 !data/WT_pickles/.dummy
 !data/audio/.dummy
 *.7z

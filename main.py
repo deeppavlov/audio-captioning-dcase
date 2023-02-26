@@ -1,13 +1,47 @@
+# EMULATING DOCKERFILE
+
+%cd /content/
+
+!echo "--------------------------------removing old files...--------------------------------"
+!rm -rf /content/sample_data
+!rm -rf /content/audio-captioning-dcase
+
+!echo "--------------------------------cloning all required repositories...--------------------------------"
+!git clone https://github.com/moon-strider/audio-captioning-dcase
+
+!echo "--------------------------------installing dependencies...--------------------------------"
+!pip install -r /content/audio-captioning-dcase/wavetransformer/requirement_pip.txt
+
+!echo "--------------------------------copying partial dataset from google drive...--------------------------------"
+!cp -r /content/drive/MyDrive/dcasePart/evaluation /content/audio-captioning-dcase/wavetransformer/data/clotho_audio_files/
+!cp -r /content/drive/MyDrive/dcasePart/development /content/audio-captioning-dcase/wavetransformer/data/clotho_audio_files/
+
+!cp /content/drive/MyDrive/dcasePart/clotho_captions_development.csv /content/audio-captioning-dcase/wavetransformer/data/clotho_csv_files/clotho_captions_development.csv
+!cp /content/drive/MyDrive/dcasePart/clotho_captions_evaluation.csv /content/audio-captioning-dcase/wavetransformer/data/clotho_csv_files/clotho_captions_evaluation.csv
+
+!echo "--------------------------------copying development -> evaluation...--------------------------------"
+!cp -r /content/audio-captioning-dcase/wavetransformer/data /content/audio-captioning-dcase/clotho-dataset
+!cp /content/audio-captioning-dcase/clotho-dataset/data/clotho_csv_files/clotho_captions_development.csv /content/audio-captioning-dcase/clotho-dataset/data/clotho_csv_files/clotho_captions_evaluation.csv
+!cp -r /content/audio-captioning-dcase/clotho-dataset/data/clotho_audio_files/development/* /content/audio-captioning-dcase/clotho-dataset/data/clotho_audio_files/evaluation/
+
+# EMULATING DOCKERFILE
+
+
 import subprocess
 import sys
 import numpy as np
 import pandas as pd
 import copy
 
-sys.path.append("./aux_files/wavetransformer")
-sys.path.append("./aux_files/wavetransformer/wt_tools")
-sys.path.append("./aux_files/clotho-dataset/tools")
-sys.path.append("./aux_files/clotho-dataset")
+# sys.path.append("./aux_files/wavetransformer")
+# sys.path.append("./aux_files/wavetransformer/wt_tools")
+# sys.path.append("./aux_files/clotho-dataset/tools")
+# sys.path.append("./aux_files/clotho-dataset")
+
+sys.path.append("/content/audio-captioning-dcase/wavetransformer")
+sys.path.append("/content/audio-captioning-dcase/wavetransformer/wt_tools")
+sys.path.append("/content/audio-captioning-dcase/clotho-dataset/tools")
+sys.path.append("/content/audio-captioning-dcase/clotho-dataset")
 
 from sys import stdout
 from datetime import datetime
@@ -42,11 +76,6 @@ def prepare_dataset():
     global settings_features
 
     subprocess.run(["echo", "\'here you must load the data\'"])
-
-    !echo "--------------------------------copying development -> evaluation...--------------------------------"
-    !cp -r /content/audio-captioning-dcase/wavetransformer/data /content/audio-captioning-dcase/clotho-dataset
-    !cp /content/audio-captioning-dcase/clotho-dataset/data/clotho_csv_files/clotho_captions_development.csv /content/audio-captioning-dcase/clotho-dataset/data/clotho_csv_files/clotho_captions_evaluation.csv
-    !cp -r /content/audio-captioning-dcase/clotho-dataset/data/clotho_audio_files/development/* /content/audio-captioning-dcase/clotho-dataset/data/clotho_audio_files/evaluation/
 
 
     subprocess.run(["echo", "\'--------------------------------preparing dataset...--------------------------------\'"])
@@ -353,16 +382,14 @@ def prepare_dataset():
 
 
     subprocess.run(["echo", "\'--------------------------------dataset -> data_splits...--------------------------------\'"])
-    !cp -r /content/audio-captioning-dcase/clotho-dataset/data/clotho_dataset_dev/* /content/audio-captioning-dcase/clotho-dataset/data/data_splits_features/development
-    !cp -r /content/audio-captioning-dcase/clotho-dataset/data/clotho_dataset_eva/* /content/audio-captioning-dcase/clotho-dataset/data/data_splits_features/evaluation
+    subprocess.run(["cp", "-r", "/content/audio-captioning-dcase/clotho-dataset/data/clotho_dataset_dev/*", "/content/audio-captioning-dcase/clotho-dataset/data/data_splits_features/development"])
+    subprocess.run(["cp", "-r", "/content/audio-captioning-dcase/clotho-dataset/data/clotho_dataset_eva/*", "/content/audio-captioning-dcase/clotho-dataset/data/data_splits_features/evaluation"])
 
-    !cp -rf /content/audio-captioning-dcase/wavetransformer/data/WT_pickles /content/audio-captioning-dcase/clotho-dataset/data/WT_pickles
+    subprocess.run(["cp", "-rf", "/content/audio-captioning-dcase/wavetransformer/data/WT_pickles", "/content/audio-captioning-dcase/clotho-dataset/data/WT_pickles"])
 
-    %cd /content/audio-captioning-dcase/wavetransformer/
-
-    !cp -r /content/audio-captioning-dcase/clotho-dataset/data/data_splits_features/evaluation /content/audio-captioning-dcase/clotho-dataset/data/data_splits_features/validation
-    !cp -r /content/audio-captioning-dcase/clotho-dataset/data/clotho_audio_files/evaluation /content/audio-captioning-dcase/clotho-dataset/data/clotho_audio_files/validation
-    !cp /content/audio-captioning-dcase/clotho-dataset/data/clotho_csv_files/clotho_captions_evaluation.csv /content/audio-captioning-dcase/clotho-dataset/data/clotho_csv_files/clotho_captions_validation.csv
+    subprocess.run(["cp", "-r", "/content/audio-captioning-dcase/clotho-dataset/data/data_splits_features/evaluation", "/content/audio-captioning-dcase/clotho-dataset/data/data_splits_features/validation"])
+    subprocess.run(["cp", "-r", "/content/audio-captioning-dcase/clotho-dataset/data/clotho_audio_files/evaluation", "/content/audio-captioning-dcase/clotho-dataset/data/clotho_audio_files/validation"])
+    subprocess.run(["cp", "/content/audio-captioning-dcase/clotho-dataset/data/clotho_csv_files/clotho_captions_evaluation.csv", "/content/audio-captioning-dcase/clotho-dataset/data/clotho_csv_files/clotho_captions_validation.csv"])
 
 
 def feature_extraction(audio_data: np.ndarray, sr: int, nb_fft: int,
@@ -417,8 +444,8 @@ class MyDataParallel(DataParallel):
 
 
 def _decode_outputs(predicted_outputs: MutableSequence[Tensor],
-                    ground_truth_outputs: MutableSequence[Tensor],
-                    gt_indices_object: MutableSequence[str],
+#                    ground_truth_outputs: MutableSequence[Tensor],
+#                    gt_indices_object: MutableSequence[str],
                     model_indices_object: MutableSequence[str],
                     file_names: MutableSequence[Path],
                     eos_token: str,
@@ -430,11 +457,10 @@ def _decode_outputs(predicted_outputs: MutableSequence[Tensor],
     main_logger.info('Starting decoding of captions')
 
     captions_pred: List[Dict] = []
-    captions_gt: List[Dict] = []
     f_names: List[str] = []
 
-    for gt_words, b_predictions, f_name in zip(
-            ground_truth_outputs, predicted_outputs, file_names):
+    for b_predictions, f_name in zip(
+            predicted_outputs, file_names):
         print(b_predictions.float(), "\n\n", b_predictions.cpu().numpy())
         #predicted_words = softmax(b_predictions.cpu().numpy(), dim=-1) \
         #    .argmax(1)
@@ -442,11 +468,11 @@ def _decode_outputs(predicted_outputs: MutableSequence[Tensor],
         predicted_caption = [model_indices_object[i.item()]
                              for i in predicted_words]
 
-        gt_caption = [gt_indices_object[i.item()]
-                      for i in gt_words]
-        (gt_caption)
-        gt_caption = gt_caption[:gt_caption.index(eos_token)]
-
+        #gt_caption = [gt_indices_object[i.item()]
+        #              for i in gt_words]
+        #(gt_caption)
+        #gt_caption = gt_caption[:gt_caption.index(eos_token)]
+        
         try:
             predicted_caption = predicted_caption[
                 :predicted_caption.index(eos_token)]
@@ -454,7 +480,7 @@ def _decode_outputs(predicted_outputs: MutableSequence[Tensor],
             pass
 
         predicted_caption = ' '.join(predicted_caption)
-        gt_caption = ' '.join(gt_caption)
+#        gt_caption = ' '.join(gt_caption)
 
         f_n = f_name.stem
 
@@ -463,21 +489,21 @@ def _decode_outputs(predicted_outputs: MutableSequence[Tensor],
             captions_pred.append({
                 'file_name': f_n,
                 'caption_predicted': predicted_caption})
-            captions_gt.append({
-                'file_name': f_n,
-                'caption_1': gt_caption})
-        else:
-            for d_i, d in enumerate(captions_gt):
-                if f_n == d['file_name']:
-                    len_captions = len([i_c for i_c in d.keys()
-                                        if i_c.startswith('caption_')]) + 1
-                    d.update({f'caption_{len_captions}': gt_caption})
-                    captions_gt[d_i] = d
-                    break
+            #captions_gt.append({
+             #   'file_name': f_n,
+              #  'caption_1': gt_caption})
+#        else:
+#            for d_i, d in enumerate(captions_gt):
+ #               if f_n == d['file_name']:
+  #                  len_captions = len([i_c for i_c in d.keys()
+   #                                     if i_c.startswith('caption_')]) + 1
+    #                d.update({f'caption_{len_captions}': gt_caption})
+     #               captions_gt[d_i] = d
+      #              break
 
         log_strings = [f'Captions for file {f_name.stem}: ',
-                       f'\tPredicted caption: {predicted_caption}',
-                       f'\tOriginal caption: {gt_caption}\n\n']
+                       f'\tPredicted caption: {predicted_caption}']
+                       #f'\tOriginal caption: {gt_caption}\n\n']
 
         [caption_logger.info(log_string)
          for log_string in log_strings]
@@ -489,13 +515,12 @@ def _decode_outputs(predicted_outputs: MutableSequence[Tensor],
     logger.bind(is_caption=False, indent=0).info(
         'Decoding of captions ended')
 
-    return captions_pred, captions_gt
+    return captions_pred
 
 def _do_inference(model: Module,
                    settings_data:  MutableMapping[str, Any],
                    settings_io:  MutableMapping[str, Any],
-                   model_indices_list: MutableSequence[str],
-                   gt_indices_list: MutableSequence[str],) \
+                   model_indices_list: MutableSequence[str]) \
         -> None:
     global caps
     model.eval()
@@ -515,11 +540,9 @@ def _do_inference(model: Module,
             data=validation_data, module=model,
             use_y=False,
             objective=None, optimizer=None)
-    captions_pred, captions_gt = _decode_outputs(
+    captions_pred = _decode_outputs(
         outputs[1],
-        outputs[2],
         model_indices_object=model_indices_list,
-        gt_indices_object=gt_indices_list,
         file_names=outputs[3],
         eos_token='<eos>',
         print_to_console=False)
@@ -527,9 +550,7 @@ def _do_inference(model: Module,
     logger_main.info('Inference done')
 
     pred_df = pd.DataFrame(captions_pred)
-    gold_df = pd.DataFrame(captions_gt)
-    res_df = pred_df.merge(gold_df, on="file_name")
-    caps = res_df #.to_csv("inference_result.csv", index=false)
+    caps = pred_df #.to_csv("inference_result.csv", index=false)
 
 
 def _load_indices_file(settings_files: MutableMapping[str, Any],
@@ -567,12 +588,6 @@ def method(settings: MutableMapping[str, Any]) -> None:
 
     logger_inner.info('Settings:\n'
                       f'{pretty_printer.pformat(settings)}\n')
-
-    logger_inner.info('Loading indices file')
-    gt_indices_list = _load_indices_file(
-        settings['dirs_and_files'],
-        settings['dnn_training_settings']['data']
-    )
     
     settings_model = copy.deepcopy(settings)
     settings_model['dirs_and_files']['root_dirs']['data'] = "/content/audio-captioning-dcase/wavetransformer/data"
@@ -600,9 +615,9 @@ def method(settings: MutableMapping[str, Any]) -> None:
         model=model,
         settings_data=settings['dnn_training_settings']['data'],
         settings_io=settings['dirs_and_files'],
-        model_indices_list=model_indices_list,
-        gt_indices_list=gt_indices_list)
+        model_indices_list=model_indices_list)
     logger_inner.info('Inference done')
 
+prepare_dataset()
 method(config)
 caps.head()

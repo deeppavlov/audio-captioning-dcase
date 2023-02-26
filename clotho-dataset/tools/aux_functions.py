@@ -154,6 +154,7 @@ def check_data_for_split(dir_audio: Path, dir_data: Path, dir_root: Path,
                                      'indices.'.format(data_file))
 
         if not audio_has_data_files:
+            print(f"----------------------------------------------{f_stem}, {file_name_audio.stem}----------------------------------------------------")
             raise FileExistsError('Audio file {} has no associated data.'.format(
                 file_name_audio))
 
