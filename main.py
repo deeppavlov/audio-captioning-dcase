@@ -25,6 +25,8 @@
 !cp -r /content/audio-captioning-dcase/clotho-dataset/data/clotho_audio_files/development/* /content/audio-captioning-dcase/clotho-dataset/data/clotho_audio_files/evaluation/
 
 !cp -r /content/audio-captioning-dcase/clotho-dataset/data /content/
+!rm -f /content/data/data_splits_features/evaluation/.dummy
+!rm -f /content/data/data_splits_features/development/.dummy
 
 # EMULATING DOCKERFILE
 
@@ -59,12 +61,9 @@ from typing import MutableMapping, MutableSequence,\
     Any, Union, List, Dict, Tuple
 from torch import Tensor, no_grad
 from torch.nn import Module, DataParallel
-from torch.optim import Adam
-from torch.nn.functional import softmax
 from wt_tools import file_io, printing
 from wt_tools.model import module_epoch_passing, get_model, get_device
 from data_handlers.clotho_loader import get_clotho_loader
-from wt_tools.file_io import load_yaml_file
 from wt_tools.printing import init_loggers
 from wt_tools.argument_parsing import get_argument_parser
 
@@ -96,7 +95,7 @@ def prepare_dataset():
             "downloaded_audio_evaluation": 'evaluation',
         },
         "annotations": {
-            "development_file": 'clotho_csv_files/clotho_captions_development.csv',
+            "development_file": 'clotho_csv_files/clotho_captions_development.csv',         # TOFIX: мб не работает из-за того, что файл мелкий, взять исходный
             "evaluation_file": 'clotho_csv_files/clotho_captions_evaluation.csv',
             "audio_file_column": 'file_name',
             "captions_fields_prefix": 'caption_{}',
@@ -109,7 +108,7 @@ def prepare_dataset():
             "use_unique_chars_per_caption": False,
         },
         "output_files": {
-            "dir_output": 'data_splits',
+            "dir_output": 'data_splits_features', # data_splits bylo
             "dir_data_development": 'development',
             "dir_data_evaluation": 'evaluation',
             "file_name_template": 'clotho_file_{audio_file_name}_{caption_index}.npy',
@@ -238,8 +237,8 @@ def prepare_dataset():
 
     main_logger.info('Reading annotations files')
     csv_dev, csv_eva = get_annotations_files(
-        settings_ann=settings['annotations'],
-        dir_ann=dir_root.joinpath(settings['directories']['annotations_dir']))
+        settings_ann=settings_dataset['annotations'],
+        dir_ann=dir_root.joinpath(settings_dataset['directories']['annotations_dir']))
     main_logger.info('Done')
 
     main_logger.info('Getting the captions')
@@ -331,6 +330,8 @@ def prepare_dataset():
 
         features = feature_extraction(data_file['audio_data'].item(),
                         **settings_features['process'])
+        
+        main_logger.info("features: {}", features)
 
         array_data = (data_file['file_name'].item(), )
         dtypes = [('file_name', data_file['file_name'].dtype)]
@@ -361,9 +362,9 @@ def prepare_dataset():
 
         file_path = parent_path.joinpath(data_file_name.name)
 
-        dump_numpy_object(np_rec_array, str(file_path))
+        dump_numpy_object(np_rec_array, str(file_path)) # save to var, not to file
 
-        main_logger.info('Features extracted')
+    main_logger.info('Features extracted')
 
 
     #subprocess.run(["echo", "\'--------------------------------dataset -> data_splits...--------------------------------\'"])
@@ -553,7 +554,7 @@ def method(settings: MutableMapping[str, Any]) -> None:
                       f'{pretty_printer.pformat(settings)}\n')
     
     settings_model = copy.deepcopy(settings)
-    settings_model['dirs_and_files']['root_dirs']['data'] = "/content/audio-captioning-dcase/wavetransformer/data"
+    settings_model['dirs_and_files']['root_dirs']['data'] = "/content/audio-captioning-dcase/wavetransformer/data" # TOFIX: hardcoded = bad
     model_indices_list = _load_indices_file(
         settings_model['dirs_and_files'],
         settings_model['dnn_training_settings']['data'])
@@ -563,7 +564,7 @@ def method(settings: MutableMapping[str, Any]) -> None:
 
     logger_main.info('Bootstrapping done')
 
-    logger_main.info('Loading model from best checkpoint')
+    logger_main.info('Loading model')
     if model is None:
         logger_inner.info('Setting up model')
         model = get_model(

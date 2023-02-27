@@ -178,7 +178,8 @@ def create_lists_and_frequencies(captions: MutableSequence[str],
 
 
 def create_split_data(csv_split: MutableSequence[MutableMapping[str, str]], dir_split: Path,
-                      dir_audio: Path, dir_root: Path, settings_ann: MutableMapping[str, Any],
+                      dir_audio: Path, dir_root: Path, words_list: MutableSequence[str],
+                      chars_list: MutableSequence[str], settings_ann: MutableMapping[str, Any],
                       settings_audio: MutableMapping[str, Any],
                       settings_output: MutableMapping[str, Any]) -> None:
     """Creates the data for the split.
