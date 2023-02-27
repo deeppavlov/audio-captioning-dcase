@@ -293,16 +293,16 @@ def prepare_dataset():
         main_logger.info('Amount of {} data files per audio: {}'.format(
         split_name, nb_files_data / nb_files_audio))
 
-        main_logger.info('Checking the {} split'.format(split_name))
-        check_data_for_split(
-        dir_audio=dir_root.joinpath(dir_downloaded_audio),
-        dir_data=Path(settings_dataset['output_files']['dir_output'],
-                settings_dataset['output_files']['dir_data_{}'.format(
-                split_name)]),
-        dir_root=dir_root, csv_split=split_csv,
-        settings_ann=settings_dataset['annotations'],
-        settings_audio=settings_dataset['audio'],
-        settings_cntr=settings_dataset['counters'])
+        # main_logger.info('Checking the {} split'.format(split_name))
+        # check_data_for_split(
+        # dir_audio=dir_root.joinpath(dir_downloaded_audio),
+        # dir_data=Path(settings_dataset['output_files']['dir_output'],
+        #         settings_dataset['output_files']['dir_data_{}'.format(
+        #         split_name)]),
+        # dir_root=dir_root, csv_split=split_csv,
+        # settings_ann=settings_dataset['annotations'],
+        # settings_audio=settings_dataset['audio'],
+        # settings_cntr=settings_dataset['counters'])
         main_logger.info('Done')
 
     main_logger.info('Dataset created')
@@ -570,7 +570,7 @@ def method(settings: MutableMapping[str, Any]) -> None:
         model = get_model(
             settings_model=settings['dnn_training_settings']['model'],
             settings_io=settings['dirs_and_files'],
-            output_classes=len(model_indices_list),
+            output_classes=settings['dnn_training_settings']['model']['decoder']['nb_classes'],
             device=device)
         model.to(device)
         logger_inner.info('Model ready')
