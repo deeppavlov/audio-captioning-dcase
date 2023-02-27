@@ -24,10 +24,11 @@
 !cp /content/audio-captioning-dcase/clotho-dataset/data/clotho_csv_files/clotho_captions_development.csv /content/audio-captioning-dcase/clotho-dataset/data/clotho_csv_files/clotho_captions_evaluation.csv
 !cp -r /content/audio-captioning-dcase/clotho-dataset/data/clotho_audio_files/development/* /content/audio-captioning-dcase/clotho-dataset/data/clotho_audio_files/evaluation/
 
+!cp -r /content/audio-captioning-dcase/clotho-dataset/data /content/
+
 # EMULATING DOCKERFILE
 
 
-import subprocess
 import sys
 import numpy as np
 import pandas as pd
@@ -74,15 +75,21 @@ caps = settings_dataset = settings_features = config = None
 def prepare_dataset():
     global settings_dataset
     global settings_features
+    global config
 
-    subprocess.run(["echo", "\'here you must load the data\'"])
+    logger.remove()
+    logger.add(stdout, format='{level} | [{time:HH:mm:ss}] {name} -- {message}.',
+                level='INFO', filter=lambda record: record['extra']['indent'] == 1)
+    logger.add(stdout, format='  {level} | [{time:HH:mm:ss}] {name} -- {message}.',
+                level='INFO', filter=lambda record: record['extra']['indent'] == 2)
+    main_logger = logger.bind(indent=1)
 
-
-    subprocess.run(["echo", "\'--------------------------------preparing dataset...--------------------------------\'"])
+    # placeholder for loading the data maybe
+    
     settings_dataset = {
         "verbose": True,
         "directories": {
-            "root_dir": '/content/audio-captioning-dcase/clotho-dataset/data',
+            "root_dir": '/content/data',
             "annotations_dir": '',
             "downloaded_audio_dir": 'clotho_audio_files',
             "downloaded_audio_development": 'development',
@@ -94,7 +101,7 @@ def prepare_dataset():
             "audio_file_column": 'file_name',
             "captions_fields_prefix": 'caption_{}',
             "use_special_tokens": True,
-            "nb_captions": 0, # number of captions to show (gt ones)
+            "nb_captions": 1, # number of captions to show (gt ones)
             "keep_case": False,
             "remove_punctuation_words": True,
             "remove_punctuation_chars": False,
@@ -182,8 +189,8 @@ def prepare_dataset():
         },
         "dirs_and_files": {
             "root_dirs": {
-                "outputs": 'outputs',
-                "data": '/content/audio-captioning-dcase/clotho-dataset/data',
+                "outputs": '/content/audio-captioning-dcase/wavetransformer/outputs',
+                "data": '/content/data',
             },
             "dataset": {
                 "development": "development",
@@ -202,7 +209,6 @@ def prepare_dataset():
                     "evaluation": "evaluation",
                     "validation": "validation",
                 },
-                "annotations_dir": 'clotho_csv_files',
                 "pickle_files_dir": 'WT_pickles',
                 "files": {
                     "np_file_name_template": 'clotho_file_{audio_file_name}_{caption_index}.npy',
@@ -221,57 +227,44 @@ def prepare_dataset():
         }
     }
 
-
-    logger.remove()
-    logger.add(stdout, format='{level} | [{time:HH:mm:ss}] {name} -- {message}.',
-                level='INFO', filter=lambda record: record['extra']['indent'] == 1)
-    logger.add(stdout, format='  {level} | [{time:HH:mm:ss}] {name} -- {message}.',
-                level='INFO', filter=lambda record: record['extra']['indent'] == 2)
-    main_logger = logger.bind(indent=1)
-
     if not settings_dataset['verbose']:
         main_logger.info('Verbose if off. Not logging messages')
         logger.disable('__main__')
         logger.disable('processes')
 
-    main_logger.info(datetime.now().strftime('%Y-%m-%d %H:%M'))
-
     main_logger.info('Starting Clotho dataset creation')
 
-    settings = settings_dataset
+    dir_root = Path(settings_dataset['directories']['root_dir'])
 
-    inner_logger = logger.bind(indent=2)
-    dir_root = Path(settings['directories']['root_dir'])
-
-    inner_logger.info('Reading annotations files')
+    main_logger.info('Reading annotations files')
     csv_dev, csv_eva = get_annotations_files(
         settings_ann=settings['annotations'],
         dir_ann=dir_root.joinpath(settings['directories']['annotations_dir']))
-    inner_logger.info('Done')
+    main_logger.info('Done')
 
-    inner_logger.info('Getting the captions')
+    main_logger.info('Getting the captions')
     captions_development = [
         csv_field.get(
-        settings['annotations']['captions_fields_prefix'].format(c_ind))
+        settings_dataset['annotations']['captions_fields_prefix'].format(c_ind))
         for csv_field in csv_dev
         for c_ind in range(1, 6)]
-    inner_logger.info('Done')
+    main_logger.info('Done')
 
-    inner_logger.info('Creating and saving words and chars lists '
+    main_logger.info('Creating and saving words and chars lists '
             'and frequencies')
     words_list, chars_list = create_lists_and_frequencies(
         captions=captions_development, dir_root=dir_root,
-        settings_ann=settings['annotations'],
-        settings_cntr=settings['counters'])
-    inner_logger.info('Done')
+        settings_ann=settings_dataset['annotations'],
+        settings_cntr=settings_dataset['counters'])
+    main_logger.info('Done')
 
     split_func = partial(
         create_split_data,
         dir_root=dir_root,
         words_list=words_list, chars_list=chars_list,
-        settings_ann=settings['annotations'],
-        settings_audio=settings['audio'],
-        settings_output=settings['output_files'])
+        settings_ann=settings_dataset['annotations'],
+        settings_audio=settings_dataset['audio'],
+        settings_output=settings_dataset['output_files'])
 
     for split_data in [(csv_dev, 'development'), (csv_eva, 'evaluation')]:
 
@@ -279,55 +272,47 @@ def prepare_dataset():
         split_csv = split_data[0]
 
         dir_split = dir_root.joinpath(
-        settings['output_files']['dir_output'],
-        settings['output_files']['dir_data_{}'.format(split_name)])
+        settings_dataset['output_files']['dir_output'],
+        settings_dataset['output_files']['dir_data_{}'.format(split_name)])
 
         dir_downloaded_audio = Path(
-        settings['directories']['downloaded_audio_dir'],
-        settings['directories']['downloaded_audio_{}'.format(split_name)])
+        settings_dataset['directories']['downloaded_audio_dir'],
+        settings_dataset['directories']['downloaded_audio_{}'.format(split_name)])
 
-        inner_logger.info('Creating the {} split data'.format(split_name))
+        main_logger.info('Creating the {} split data'.format(split_name))
         split_func(split_csv, dir_split, dir_downloaded_audio)
-        inner_logger.info('Done')
+        main_logger.info('Done')
 
         nb_files_audio = get_amount_of_file_in_dir(
         dir_root.joinpath(dir_downloaded_audio))
         nb_files_data = get_amount_of_file_in_dir(dir_split)
 
-        inner_logger.info('Amount of {} audio files: {}'.format(
+        main_logger.info('Amount of {} audio files: {}'.format(
         split_name, nb_files_audio))
-        inner_logger.info('Amount of {} data files: {}'.format(
+        main_logger.info('Amount of {} data files: {}'.format(
         split_name, nb_files_data))
-        inner_logger.info('Amount of {} data files per audio: {}'.format(
+        main_logger.info('Amount of {} data files per audio: {}'.format(
         split_name, nb_files_data / nb_files_audio))
 
-        inner_logger.info('Checking the {} split'.format(split_name))
+        main_logger.info('Checking the {} split'.format(split_name))
         check_data_for_split(
         dir_audio=dir_root.joinpath(dir_downloaded_audio),
-        dir_data=Path(settings['output_files']['dir_output'],
-                settings['output_files']['dir_data_{}'.format(
+        dir_data=Path(settings_dataset['output_files']['dir_output'],
+                settings_dataset['output_files']['dir_data_{}'.format(
                 split_name)]),
         dir_root=dir_root, csv_split=split_csv,
-        settings_ann=settings['annotations'],
-        settings_audio=settings['audio'],
-        settings_cntr=settings['counters'])
-        inner_logger.info('Done')
+        settings_ann=settings_dataset['annotations'],
+        settings_audio=settings_dataset['audio'],
+        settings_cntr=settings_dataset['counters'])
+        main_logger.info('Done')
 
     main_logger.info('Dataset created')
 
-    main_logger.info('Starting Clotho feature extraction')
-
-    settings_data = settings_dataset
-        
-    dir_root = Path(settings_data['directories']['root_dir'])
-
-    dir_output = dir_root.joinpath(settings_data['output_files']['dir_output'])
+    dir_output = dir_root.joinpath(settings_dataset['output_files']['dir_output'])
     dir_dev = dir_output.joinpath(
-        settings_data['output_files']['dir_data_development'])
+        settings_dataset['output_files']['dir_data_development'])
     dir_eva = dir_output.joinpath(
-        settings_data['output_files']['dir_data_evaluation'])
-
-    f_func = feature_extraction
+        settings_dataset['output_files']['dir_data_evaluation'])
 
     dir_output_dev = dir_root.joinpath(
             settings_features['output']['dir_output'],
@@ -344,7 +329,7 @@ def prepare_dataset():
 
         data_file = load_numpy_object(data_file_name)
 
-        features = f_func(data_file['audio_data'].item(),
+        features = feature_extraction(data_file['audio_data'].item(),
                         **settings_features['process'])
 
         array_data = (data_file['file_name'].item(), )
@@ -371,7 +356,7 @@ def prepare_dataset():
         np_rec_array = np.rec.array([array_data], dtype=dtypes)
 
         parent_path = dir_output_dev \
-            if data_file_name.parent.name == settings_data['output_files']['dir_data_development'] \
+            if data_file_name.parent.name == settings_dataset['output_files']['dir_data_development'] \
             else dir_output_eva
 
         file_path = parent_path.joinpath(data_file_name.name)
@@ -381,15 +366,15 @@ def prepare_dataset():
         main_logger.info('Features extracted')
 
 
-    subprocess.run(["echo", "\'--------------------------------dataset -> data_splits...--------------------------------\'"])
-    subprocess.run(["cp", "-r", "/content/audio-captioning-dcase/clotho-dataset/data/clotho_dataset_dev/*", "/content/audio-captioning-dcase/clotho-dataset/data/data_splits_features/development"])
-    subprocess.run(["cp", "-r", "/content/audio-captioning-dcase/clotho-dataset/data/clotho_dataset_eva/*", "/content/audio-captioning-dcase/clotho-dataset/data/data_splits_features/evaluation"])
+    #subprocess.run(["echo", "\'--------------------------------dataset -> data_splits...--------------------------------\'"])
+    #subprocess.run(["cp", "-r", "/content/audio-captioning-dcase/clotho-dataset/data/clotho_dataset_dev/*", "/content/audio-captioning-dcase/clotho-dataset/data/data_splits_features/development"])
+    #subprocess.run(["cp", "-r", "/content/audio-captioning-dcase/clotho-dataset/data/clotho_dataset_eva/*", "/content/audio-captioning-dcase/clotho-dataset/data/data_splits_features/evaluation"])
 
-    subprocess.run(["cp", "-rf", "/content/audio-captioning-dcase/wavetransformer/data/WT_pickles", "/content/audio-captioning-dcase/clotho-dataset/data/WT_pickles"])
+    #subprocess.run(["cp", "-rf", "/content/audio-captioning-dcase/wavetransformer/data/WT_pickles", "/content/audio-captioning-dcase/clotho-dataset/data/WT_pickles"])
 
-    subprocess.run(["cp", "-r", "/content/audio-captioning-dcase/clotho-dataset/data/data_splits_features/evaluation", "/content/audio-captioning-dcase/clotho-dataset/data/data_splits_features/validation"])
-    subprocess.run(["cp", "-r", "/content/audio-captioning-dcase/clotho-dataset/data/clotho_audio_files/evaluation", "/content/audio-captioning-dcase/clotho-dataset/data/clotho_audio_files/validation"])
-    subprocess.run(["cp", "/content/audio-captioning-dcase/clotho-dataset/data/clotho_csv_files/clotho_captions_evaluation.csv", "/content/audio-captioning-dcase/clotho-dataset/data/clotho_csv_files/clotho_captions_validation.csv"])
+    #subprocess.run(["cp", "-r", "/content/audio-captioning-dcase/clotho-dataset/data/data_splits_features/evaluation", "/content/audio-captioning-dcase/clotho-dataset/data/data_splits_features/validation"])
+    #subprocess.run(["cp", "-r", "/content/audio-captioning-dcase/clotho-dataset/data/clotho_audio_files/evaluation", "/content/audio-captioning-dcase/clotho-dataset/data/clotho_audio_files/validation"])
+    #subprocess.run(["cp", "/content/audio-captioning-dcase/clotho-dataset/data/clotho_csv_files/clotho_captions_evaluation.csv", "/content/audio-captioning-dcase/clotho-dataset/data/clotho_csv_files/clotho_captions_validation.csv"])
 
 
 def feature_extraction(audio_data: np.ndarray, sr: int, nb_fft: int,
@@ -444,8 +429,6 @@ class MyDataParallel(DataParallel):
 
 
 def _decode_outputs(predicted_outputs: MutableSequence[Tensor],
-#                    ground_truth_outputs: MutableSequence[Tensor],
-#                    gt_indices_object: MutableSequence[str],
                     model_indices_object: MutableSequence[str],
                     file_names: MutableSequence[Path],
                     eos_token: str,
@@ -462,16 +445,9 @@ def _decode_outputs(predicted_outputs: MutableSequence[Tensor],
     for b_predictions, f_name in zip(
             predicted_outputs, file_names):
         print(b_predictions.float(), "\n\n", b_predictions.cpu().numpy())
-        #predicted_words = softmax(b_predictions.cpu().numpy(), dim=-1) \
-        #    .argmax(1)
         predicted_words = b_predictions
         predicted_caption = [model_indices_object[i.item()]
                              for i in predicted_words]
-
-        #gt_caption = [gt_indices_object[i.item()]
-        #              for i in gt_words]
-        #(gt_caption)
-        #gt_caption = gt_caption[:gt_caption.index(eos_token)]
         
         try:
             predicted_caption = predicted_caption[
@@ -480,7 +456,6 @@ def _decode_outputs(predicted_outputs: MutableSequence[Tensor],
             pass
 
         predicted_caption = ' '.join(predicted_caption)
-#        gt_caption = ' '.join(gt_caption)
 
         f_n = f_name.stem
 
@@ -489,21 +464,9 @@ def _decode_outputs(predicted_outputs: MutableSequence[Tensor],
             captions_pred.append({
                 'file_name': f_n,
                 'caption_predicted': predicted_caption})
-            #captions_gt.append({
-             #   'file_name': f_n,
-              #  'caption_1': gt_caption})
-#        else:
-#            for d_i, d in enumerate(captions_gt):
- #               if f_n == d['file_name']:
-  #                  len_captions = len([i_c for i_c in d.keys()
-   #                                     if i_c.startswith('caption_')]) + 1
-    #                d.update({f'caption_{len_captions}': gt_caption})
-     #               captions_gt[d_i] = d
-      #              break
 
         log_strings = [f'Captions for file {f_name.stem}: ',
                        f'\tPredicted caption: {predicted_caption}']
-                       #f'\tOriginal caption: {gt_caption}\n\n']
 
         [caption_logger.info(log_string)
          for log_string in log_strings]
@@ -549,9 +512,9 @@ def _do_inference(model: Module,
 
     logger_main.info('Inference done')
 
-    pred_df = pd.DataFrame(captions_pred)
-    caps = pred_df #.to_csv("inference_result.csv", index=false)
-
+    caps = pd.DataFrame(captions_pred)
+    logger_main.info("caps: {}", caps)
+    
 
 def _load_indices_file(settings_files: MutableMapping[str, Any],
                        settings_data: MutableMapping[str, Any]) \

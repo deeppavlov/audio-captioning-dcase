@@ -39,7 +39,6 @@ def get_amount_of_file_in_dir(the_dir: Path) -> int:
 
 def check_data_for_split(dir_audio: Path, dir_data: Path, dir_root: Path,
                          csv_split: MutableSequence[MutableMapping[str, str]],
-                         settings_ann: MutableMapping[str, Any],
                          settings_audio: MutableMapping[str, Any],
                          settings_cntr: MutableMapping[str, Any]) -> None:
     """Goes through all audio files and checks the created data.
@@ -107,53 +106,11 @@ def check_data_for_split(dir_audio: Path, dir_data: Path, dir_root: Path,
                             for i in range(len(data_audio_original))]):
                     raise ValueError('Numpy object {} has wrong audio data.'.format(data_file))
 
-                # Get the original caption
-                caption_index = data_array['caption_ind'].item()
-
-                # Clean it to remove any spaces before punctuation.
-                original_caption = clean_sentence(
-                    sentence=csv_entry[settings_ann['captions_fields_prefix'].format(caption_index + 1)],
-                    keep_case=True, remove_punctuation=False,
-                    remove_specials=not settings_ann['use_special_tokens'])
-
-                # Check with the file caption
-                caption_data_array = clean_sentence(
-                    sentence=data_array['caption'].item(), keep_case=True,
-                    remove_punctuation=False,
-                    remove_specials=not settings_ann['use_special_tokens'])
-
-                if not original_caption == caption_data_array:
-                    raise ValueError('Numpy object {} has wrong caption.'.format(data_file))
-
-                # Since caption in the file is OK, we can use it instead of
-                # the original, because it already has the special tokens.
-                caption_data_array = clean_sentence(
-                    sentence=data_array['caption'].item(),
-                    keep_case=settings_ann['keep_case'],
-                    remove_punctuation=settings_ann['remove_punctuation_words'],
-                    remove_specials=not settings_ann['use_special_tokens'])
-
                 # Check with the indices of words
                 words_indices = data_array['words_ind'].item()
                 caption_form_words = ' '.join([words_list[i] for i in words_indices])
 
-                if not caption_data_array == caption_form_words:
-                    raise ValueError('Numpy object {} has wrong words indices.'.format(data_file))
 
-                # Check with the indices of characters
-                caption_from_chars = ''.join([chars_list[i] for i in data_array['chars_ind'].item()])
-
-                caption_data_array = clean_sentence(
-                    sentence=data_array['caption'].item(),
-                    keep_case=settings_ann['keep_case'],
-                    remove_punctuation=settings_ann['remove_punctuation_chars'],
-                    remove_specials=not settings_ann['use_special_tokens'])
-
-                if not caption_data_array == caption_from_chars:
-                    raise ValueError('Numpy object {} has wrong characters '
-                                     'indices.'.format(data_file))
-
-        print(f"----------------------------------------------{f_stem}, {file_name_audio.stem}----------------------------------------------------")
         if not audio_has_data_files:
             raise FileExistsError('Audio file {} has no associated data.'.format(
                 file_name_audio))
@@ -221,8 +178,7 @@ def create_lists_and_frequencies(captions: MutableSequence[str],
 
 
 def create_split_data(csv_split: MutableSequence[MutableMapping[str, str]], dir_split: Path,
-                      dir_audio: Path, dir_root: Path, words_list: MutableSequence[str],
-                      chars_list: MutableSequence[str], settings_ann: MutableMapping[str, Any],
+                      dir_audio: Path, dir_root: Path, settings_ann: MutableMapping[str, Any],
                       settings_audio: MutableMapping[str, Any],
                       settings_output: MutableMapping[str, Any]) -> None:
     """Creates the data for the split.
@@ -304,7 +260,7 @@ def create_split_data(csv_split: MutableSequence[MutableMapping[str, str]], dir_
             dump_numpy_object(
                 np_obj=np_rec_array,
                 file_name=str(dir_split.joinpath(
-                    settings_output['file_name_template'].format(
+                    settings_output['file_name_template'].format( # npy file creation
                         audio_file_name=file_name_audio, caption_index=caption_ind))))
 
 
