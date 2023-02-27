@@ -108,7 +108,6 @@ def check_data_for_split(dir_audio: Path, dir_data: Path, dir_root: Path,
 
                 # Check with the indices of words
                 words_indices = data_array['words_ind'].item()
-                caption_form_words = ' '.join([words_list[i] for i in words_indices])
 
 
         if not audio_has_data_files:

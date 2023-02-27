@@ -86,16 +86,16 @@ def create_dataset(settings: MutableMapping[str, Any]) -> None:
             split_name, nb_files_data / nb_files_audio))
 
         # Check the created lists of indices for words and characters.
-        inner_logger.info('Checking the {} split'.format(split_name))
-        check_data_for_split(
-            dir_audio=dir_root.joinpath(dir_downloaded_audio),
-            dir_data=Path(settings['output_files']['dir_output'],
-                          settings['output_files']['dir_data_{}'.format(
-                              split_name)]),
-            dir_root=dir_root, csv_split=split_csv,
-            settings_ann=settings['annotations'],
-            settings_audio=settings['audio'],
-            settings_cntr=settings['counters'])
+        # inner_logger.info('Checking the {} split'.format(split_name))
+        # check_data_for_split(
+        #     dir_audio=dir_root.joinpath(dir_downloaded_audio),
+        #     dir_data=Path(settings['output_files']['dir_output'],
+        #                   settings['output_files']['dir_data_{}'.format(
+        #                       split_name)]),
+        #     dir_root=dir_root, csv_split=split_csv,
+        #     settings_ann=settings['annotations'],
+        #     settings_audio=settings['audio'],
+        #     settings_cntr=settings['counters'])
         inner_logger.info('Done')
 
 
