@@ -228,6 +228,7 @@
 
         split_func = partial(
             create_split_data,
+            dir_root=dir_root,
             settings_audio=settings_dataset['audio'],
             settings_output=settings_dataset['output_files'])
 
