@@ -49,15 +49,11 @@
     sys.path.append("/content/audio-captioning-dcase/clotho-dataset")
 
     from sys import stdout
-    from datetime import datetime
     from pathlib import Path
     from loguru import logger
     from librosa.feature import melspectrogram
-    from functools import partial
-    from aux_functions import get_annotations_files, \
-        get_amount_of_file_in_dir, check_data_for_split, \
-        create_split_data, create_lists_and_frequencies
-    from wt_tools.file_io import load_numpy_object, dump_numpy_object, load_settings_file
+    from aux_functions import get_amount_of_file_in_dir, create_split_data
+    from wt_tools.file_io import load_numpy_object, dump_numpy_object
     from itertools import chain
     from typing import MutableMapping, MutableSequence,\
         Any, Union, List, Dict, Tuple
@@ -66,8 +62,6 @@
     from wt_tools import file_io, printing
     from wt_tools.model import module_epoch_passing, get_model, get_device
     from data_handlers.clotho_loader import get_clotho_loader
-    from wt_tools.printing import init_loggers
-    from wt_tools.argument_parsing import get_argument_parser
 
 
     caps = settings_dataset = settings_features = config = features_drop = None
