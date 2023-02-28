@@ -35,6 +35,7 @@ import sys
 import numpy as np
 import pandas as pd
 import copy
+import shutil
 
 # sys.path.append("./aux_files/wavetransformer")
 # sys.path.append("./aux_files/wavetransformer/wt_tools")
@@ -68,13 +69,14 @@ from wt_tools.printing import init_loggers
 from wt_tools.argument_parsing import get_argument_parser
 
 
-caps = settings_dataset = settings_features = config = None
+caps = settings_dataset = settings_features = config = features_drop = None
 
 
 def prepare_dataset():
     global settings_dataset
     global settings_features
     global config
+    global features_drop
 
     logger.remove()
     logger.add(stdout, format='{level} | [{time:HH:mm:ss}] {name} -- {message}.',
@@ -133,7 +135,7 @@ def prepare_dataset():
         "data_files_suffix": '.npy',
         "keep_raw_audio_data": False,
         "output": {
-            "dir_output": '',
+            "dir_output": '/content/data',
             "dir_development": 'clotho_dataset_dev',
             "dir_evaluation": 'clotho_dataset_eva',
         },
@@ -189,6 +191,7 @@ def prepare_dataset():
         "dirs_and_files": {
             "root_dirs": {
                 "outputs": '/content/audio-captioning-dcase/wavetransformer/outputs',
+                "model_data": '/content/audio-captioning-dcase/wavetransformer/data',
                 "data": '/content/data',
             },
             "dataset": {
@@ -330,8 +333,6 @@ def prepare_dataset():
 
         features = feature_extraction(data_file['audio_data'].item(),
                         **settings_features['process'])
-        
-        main_logger.info("features: {}", features)
 
         array_data = (data_file['file_name'].item(), )
         dtypes = [('file_name', data_file['file_name'].dtype)]
@@ -354,19 +355,28 @@ def prepare_dataset():
             ('chars_ind', data_file['chars_ind'].dtype)
         ])
 
+        main_logger.info("adata with features: {}", array_data)
+
         np_rec_array = np.rec.array([array_data], dtype=dtypes)
 
-        parent_path = dir_output_dev \
-            if data_file_name.parent.name == settings_dataset['output_files']['dir_data_development'] \
-            else dir_output_eva
+        # parent_path = dir_output_dev \
+        #     if data_file_name.parent.name == settings_dataset['output_files']['dir_data_development'] \
+        #     else dir_output_eva
 
-        file_path = parent_path.joinpath(data_file_name.name)
+        #file_path = parent_path.joinpath(data_file_name.name)
 
-        dump_numpy_object(np_rec_array, str(file_path)) # save to var, not to file
+    features_drop = np_rec_array
+
+        # dump_numpy_object(np_rec_array, str(file_path)) # save to var, not to file
 
     main_logger.info('Features extracted')
 
-
+    shutil.move("/content/data/data_splits_features/development", "/content/data/data_splits_features/devOLD")
+    shutil.move("/content/data/data_splits_features/evaluation", "/content/data/data_splits_features/evalOLD")
+    
+    shutil.move("/content/data/clotho_dataset_dev", "/content/data/data_splits_features/development")
+    shutil.move("/content/data/clotho_dataset_eva", "/content/data/data_splits_features/evaluation")
+    
     #subprocess.run(["echo", "\'--------------------------------dataset -> data_splits...--------------------------------\'"])
     #subprocess.run(["cp", "-r", "/content/audio-captioning-dcase/clotho-dataset/data/clotho_dataset_dev/*", "/content/audio-captioning-dcase/clotho-dataset/data/data_splits_features/development"])
     #subprocess.run(["cp", "-r", "/content/audio-captioning-dcase/clotho-dataset/data/clotho_dataset_eva/*", "/content/audio-captioning-dcase/clotho-dataset/data/data_splits_features/evaluation"])
@@ -496,6 +506,14 @@ def _do_inference(model: Module,
         is_training=False,
         settings_data=settings_data,
         settings_io=settings_io)
+    
+    for pppp in get_clotho_loader(
+            settings_io['dataset']['features_dirs']['evaluation'],
+            is_training=False,
+            settings_data=settings_data,
+            settings_io=settings_io):
+        logger_main.info("data sample: {}", pppp)
+        break
 
     logger_main.info('Done')
 
@@ -521,9 +539,9 @@ def _load_indices_file(settings_files: MutableMapping[str, Any],
                        settings_data: MutableMapping[str, Any]) \
         -> MutableSequence[str]:
     path = Path(
-        settings_files['root_dirs']['data'],
+        settings_files['root_dirs']['model_data'],
         settings_files['dataset']['pickle_files_dir'])
-    print(settings_files['root_dirs']['data'])
+    print(settings_files['root_dirs']['model_data'])
     print(settings_files['dataset']['pickle_files_dir'])
     p_field = 'words_list_file_name' \
         if settings_data['output_field_name'].startswith('words') \
@@ -553,11 +571,9 @@ def method(settings: MutableMapping[str, Any]) -> None:
     logger_inner.info('Settings:\n'
                       f'{pretty_printer.pformat(settings)}\n')
     
-    settings_model = copy.deepcopy(settings)
-    settings_model['dirs_and_files']['root_dirs']['data'] = "/content/audio-captioning-dcase/wavetransformer/data" # TOFIX: hardcoded = bad
     model_indices_list = _load_indices_file(
-        settings_model['dirs_and_files'],
-        settings_model['dnn_training_settings']['data'])
+        settings['dirs_and_files'],
+        settings['dnn_training_settings']['data'])
     logger_inner.info('Done')
 
     model: Union[Module, None] = None

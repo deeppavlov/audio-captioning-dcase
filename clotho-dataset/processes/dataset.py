@@ -35,6 +35,22 @@ def create_dataset(settings: MutableMapping[str, Any]) -> None:
     # Get root dir
     dir_root = Path(settings['directories']['root_dir'])
 
+    # Read the annotation files
+    inner_logger.info('Reading annotations files')
+    csv_dev, csv_eva = get_annotations_files(
+        settings_ann=settings['annotations'],
+        dir_ann=dir_root.joinpath(settings['directories']['annotations_dir']))
+    inner_logger.info('Done')
+
+    # Get all captions
+    inner_logger.info('Getting the captions')
+    captions_development = [
+        csv_field.get(
+            settings['annotations']['captions_fields_prefix'].format(c_ind))
+        for csv_field in csv_dev
+        for c_ind in range(1, 6)]
+    inner_logger.info('Done')
+
     # Create lists of indices and frequencies for words and characters.
     inner_logger.info('Creating and saving words and chars lists '
                       'and frequencies')
