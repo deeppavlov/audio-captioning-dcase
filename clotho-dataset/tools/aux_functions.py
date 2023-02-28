@@ -8,6 +8,7 @@ from typing import MutableSequence, MutableMapping, \
     Tuple, List, Any
 
 import numpy as np
+import os
 
 from tools.csv_functions import read_csv_file
 from tools.captions_functions import get_sentence_words, \
@@ -220,92 +221,50 @@ def create_lists_and_frequencies(captions: MutableSequence[str],
     return words_list, chars_list
 
 
-def create_split_data(csv_split: MutableSequence[MutableMapping[str, str]], dir_split: Path,
-                      dir_audio: Path, dir_root: Path, words_list: MutableSequence[str],
-                      chars_list: MutableSequence[str], settings_ann: MutableMapping[str, Any],
+def create_split_data(dir_split: Path,
+                      dir_audio: Path, dir_root: Path,
                       settings_audio: MutableMapping[str, Any],
                       settings_output: MutableMapping[str, Any]) -> None:
     """Creates the data for the split.
 
-    :param csv_split: Annotations of the split.
-    :type csv_split: list[collections.OrderedDict]
     :param dir_split: Directory for the split.
     :type dir_split: pathlib.Path
     :param dir_audio: Directory of the audio files for the split.
     :type dir_audio: pathlib.Path
     :param dir_root: Root directory of data.
     :type dir_root: pathlib.Path
-    :param words_list: List of the words.
-    :type words_list: list[str]
-    :param chars_list: List of the characters.
-    :type chars_list: list[str]
-    :param settings_ann: Settings for the annotations.
-    :type settings_ann: dict
     :param settings_audio: Settings for the audio.
     :type settings_audio: dict
     :param settings_output: Settings for the output files.
     :type settings_output: dict
     """
-    # Make sure that the directory exists
+
     dir_split.mkdir(parents=True, exist_ok=True)
 
-    captions_fields = [settings_ann['captions_fields_prefix'].format(i)
-                       for i in range(1, int(settings_ann['nb_captions']) + 1)]
+    for filename in os.listdir(dir_audio):
+        file_name_audio = os.path.join(dir_audio, filename)
 
-    # For each sound:
-    for csv_entry in csv_split:
-        file_name_audio = csv_entry[settings_ann['audio_file_column']]
+        if not os.path.isfile(file_name_audio) \
+            or file_name_audio[-4:] != ".wav": # TOFIX: VERY HARDCODED, BAD BAD BAD
+            continue
 
         audio = load_audio_file(
             audio_file=str(dir_root.joinpath(dir_audio, file_name_audio)),
             sr=int(settings_audio['sr']), mono=settings_audio['to_mono'])
 
-        for caption_ind, caption_field in enumerate(captions_fields):
-            caption = csv_entry[caption_field]
+        np_rec_array = np.rec.array(np.array(
+            (file_name_audio, audio),
+            dtype=[
+                ('file_name', 'U{}'.format(len(file_name_audio))),
+                ('audio_data', np.dtype(object))
+            ]
+        ))
 
-            words_caption = get_sentence_words(
-                caption, unique=settings_ann['use_unique_words_per_caption'],
-                keep_case=settings_ann['keep_case'],
-                remove_punctuation=settings_ann['remove_punctuation_words'],
-                remove_specials=not settings_ann['use_special_tokens']
-            )
-
-            chars_caption = list(chain.from_iterable(
-                clean_sentence(
-                    caption,
-                    keep_case=settings_ann['keep_case'],
-                    remove_punctuation=settings_ann['remove_punctuation_chars'],
-                    remove_specials=True)))
-
-            if settings_ann['use_special_tokens']:
-                chars_caption.insert(0, ' ')
-                chars_caption.insert(0, '<sos>')
-                chars_caption.append(' ')
-                chars_caption.append('<eos>')
-
-            indices_words = [words_list.index(word) for word in words_caption]
-            indices_chars = [chars_list.index(char) for char in chars_caption]
-
-            #   create the numpy object with all elements
-            np_rec_array = np.rec.array(np.array(
-                (file_name_audio, audio, caption, caption_ind,
-                 np.array(indices_words), np.array(indices_chars)),
-                dtype=[
-                    ('file_name', 'U{}'.format(len(file_name_audio))),
-                    ('audio_data', np.dtype(object)),
-                    ('caption', 'U{}'.format(len(caption))),
-                    ('caption_ind', 'i4'),
-                    ('words_ind', np.dtype(object)),
-                    ('chars_ind', np.dtype(object))
-                ]
-            ))
-
-            #   save the numpy object to disk
-            dump_numpy_object(
-                np_obj=np_rec_array,
-                file_name=str(dir_split.joinpath(
-                    settings_output['file_name_template'].format( # npy file
-                        audio_file_name=file_name_audio, caption_index=caption_ind))))
+        dump_numpy_object(
+            np_obj=np_rec_array,
+            file_name=str(dir_split.joinpath(
+                settings_output['file_name_template'].format(
+                    audio_file_name=file_name_audio))))
 
 
 def get_annotations_files(settings_ann: MutableMapping[str, Any], dir_ann: Path) -> \
