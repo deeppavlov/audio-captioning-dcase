@@ -55,9 +55,9 @@ def create_split_data(dir_split: Path,
 
     for filename in os.listdir(os.path.join(dir_root, dir_audio)):
 
-        if not os.path.isfile(filename) \
-            or filename[-4:] != ".wav": # TOFIX: VERY HARDCODED, BAD BAD BAD
-            continue
+        # if not os.path.isfile(filename) \
+        #     or filename[-4:] != ".wav": # TOFIX: VERY HARDCODED, BAD BAD BAD
+        #     continue
 
         audio = load_audio_file(
             audio_file=str(filename),
