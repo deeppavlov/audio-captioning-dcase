@@ -64,7 +64,7 @@ def create_split_data(dir_split: Path,
             sr=int(settings_audio['sr']), mono=settings_audio['to_mono'])
 
         np_rec_array = np.rec.array(np.array(
-            (filename, audio, []),
+            (filename, audio, np.array([])),
             dtype=[
                 ('file_name', 'U{}'.format(len(filename))),
                 ('audio_data', np.dtype(object)),
