@@ -226,12 +226,6 @@
 
         dir_root = Path(settings_dataset['directories']['root_dir'])
 
-        split_func = partial(
-            create_split_data,
-            dir_root=dir_root,
-            settings_audio=settings_dataset['audio'],
-            settings_output=settings_dataset['output_files'])
-
         # TODO: DEV, EVA, VAL everywhere to INPUT
         for split_name in ['development', 'evaluation']:
 
@@ -239,12 +233,15 @@
             settings_dataset['output_files']['dir_output'],
             settings_dataset['output_files']['dir_data_{}'.format(split_name)])
 
+            main_logger.info("dir_split: {}", dir_split)
+
             dir_downloaded_audio = Path(
             settings_dataset['directories']['downloaded_audio_dir'],
             settings_dataset['directories']['downloaded_audio_{}'.format(split_name)])
 
             main_logger.info('Creating the {} split data'.format(split_name))
-            split_func(dir_split, dir_downloaded_audio)
+            create_split_data(dir_split, dir_downloaded_audio, dir_root, 
+                              settings_dataset['audio'], settings_dataset['output_files'])
             main_logger.info('Done')
 
             nb_files_audio = get_amount_of_file_in_dir(
