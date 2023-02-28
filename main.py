@@ -233,11 +233,13 @@
             settings_dataset['output_files']['dir_output'],
             settings_dataset['output_files']['dir_data_{}'.format(split_name)])
 
-            main_logger.info("dir_split: {}", dir_split)
-
             dir_downloaded_audio = Path(
             settings_dataset['directories']['downloaded_audio_dir'],
             settings_dataset['directories']['downloaded_audio_{}'.format(split_name)])
+
+            main_logger.info("dir_split: {}", dir_split)
+            main_logger.info("dir_audio: {}", dir_downloaded_audio)
+            main_logger.info("dir_root: {}", dir_root)
 
             main_logger.info('Creating the {} split data'.format(split_name))
             create_split_data(dir_split, dir_downloaded_audio, dir_root, 

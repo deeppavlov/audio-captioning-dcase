@@ -219,7 +219,7 @@ def create_lists_and_frequencies(captions: MutableSequence[str],
      for obj, obj_f_name in zip(obj_list, obj_f_names)]
 
     return words_list, chars_list
-
+dir_root
 
 def create_split_data(dir_split: Path,
                       dir_audio: Path, dir_root: Path,
@@ -239,25 +239,22 @@ def create_split_data(dir_split: Path,
     :type settings_output: dict
     """
 
-    print(f"dir_split: {dir_split}, dir_audio: {dir_audio}, dir_root: {dir_root}")
-
     dir_split.mkdir(parents=True, exist_ok=True)
 
-    for filename in os.listdir(dir_audio):
-        file_name_audio = os.path.join(dir_audio, filename)
+    for filename in os.listdir(os.path.join(dir_root, dir_audio)):
 
-        if not os.path.isfile(file_name_audio) \
-            or file_name_audio[-4:] != ".wav": # TOFIX: VERY HARDCODED, BAD BAD BAD
+        if not os.path.isfile(filename) \
+            or filename[-4:] != ".wav": # TOFIX: VERY HARDCODED, BAD BAD BAD
             continue
 
         audio = load_audio_file(
-            audio_file=str(dir_root.joinpath(dir_audio, file_name_audio)),
+            audio_file=str(dir_root.joinpath(dir_audio, filename)),
             sr=int(settings_audio['sr']), mono=settings_audio['to_mono'])
 
         np_rec_array = np.rec.array(np.array(
-            (file_name_audio, audio),
+            (filename, audio),
             dtype=[
-                ('file_name', 'U{}'.format(len(file_name_audio))),
+                ('file_name', 'U{}'.format(len(filename))),
                 ('audio_data', np.dtype(object))
             ]
         ))
@@ -266,7 +263,7 @@ def create_split_data(dir_split: Path,
             np_obj=np_rec_array,
             file_name=str(dir_split.joinpath(
                 settings_output['file_name_template'].format(
-                    audio_file_name=file_name_audio))))
+                    audio_file_name=filename))))
 
 
 def get_annotations_files(settings_ann: MutableMapping[str, Any], dir_ann: Path) -> \
