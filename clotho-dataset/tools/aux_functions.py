@@ -55,12 +55,12 @@ def create_split_data(dir_split: Path,
 
     for filename in os.listdir(os.path.join(dir_root, dir_audio)):
 
-        # if not os.path.isfile(filename) \
-        #     or filename[-4:] != ".wav": # TOFIX: VERY HARDCODED, BAD BAD BAD
-        #     continue
+        if not os.path.isfile(os.path.join(dir_root, dir_audio, filename)) \
+            or filename[-4:] != ".wav": # TOFIX: VERY HARDCODED, BAD BAD BAD
+            continue
 
         audio = load_audio_file(
-            audio_file=str(filename),
+            audio_file=str(os.path.join(dir_root, dir_audio, filename)),
             sr=int(settings_audio['sr']), mono=settings_audio['to_mono'])
 
         np_rec_array = np.rec.array(np.array(

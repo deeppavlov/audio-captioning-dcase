@@ -17,12 +17,8 @@
     !cp -r /content/drive/MyDrive/dcasePart/evaluation /content/audio-captioning-dcase/wavetransformer/data/clotho_audio_files/
     !cp -r /content/drive/MyDrive/dcasePart/development /content/audio-captioning-dcase/wavetransformer/data/clotho_audio_files/
 
-    #!cp /content/drive/MyDrive/dcasePart/clotho_captions_development.csv /content/audio-captioning-dcase/wavetransformer/data/clotho_csv_files/clotho_captions_development.csv
-    #!cp /content/drive/MyDrive/dcasePart/clotho_captions_evaluation.csv /content/audio-captioning-dcase/wavetransformer/data/clotho_csv_files/clotho_captions_evaluation.csv
-
     !echo "--------------------------------copying development -> evaluation...--------------------------------"
     !cp -r /content/audio-captioning-dcase/wavetransformer/data /content/audio-captioning-dcase/clotho-dataset
-    #!cp /content/audio-captioning-dcase/clotho-dataset/data/clotho_csv_files/clotho_captions_development.csv /content/audio-captioning-dcase/clotho-dataset/data/clotho_csv_files/clotho_captions_evaluation.csv
     !cp -r /content/audio-captioning-dcase/clotho-dataset/data/clotho_audio_files/development/* /content/audio-captioning-dcase/clotho-dataset/data/clotho_audio_files/evaluation/
 
     !cp -r /content/audio-captioning-dcase/clotho-dataset/data /content/
@@ -35,7 +31,6 @@
     import sys
     import numpy as np
     import pandas as pd
-    import copy
     import shutil
 
     # sys.path.append("./aux_files/wavetransformer")
@@ -300,7 +295,6 @@
             file_path = parent_path.joinpath(data_file_name.name)
 
             dump_numpy_object(np_rec_array, str(file_path)) # save to var, not to file
-        #features_drop = np_rec_array
 
 
         main_logger.info('Features extracted')
@@ -310,16 +304,6 @@
         
         shutil.move("/content/data/clotho_dataset_dev", "/content/data/data_splits_features/development")
         shutil.move("/content/data/clotho_dataset_eva", "/content/data/data_splits_features/evaluation")
-        
-        #subprocess.run(["echo", "\'--------------------------------dataset -> data_splits...--------------------------------\'"])
-        #subprocess.run(["cp", "-r", "/content/audio-captioning-dcase/clotho-dataset/data/clotho_dataset_dev/*", "/content/audio-captioning-dcase/clotho-dataset/data/data_splits_features/development"])
-        #subprocess.run(["cp", "-r", "/content/audio-captioning-dcase/clotho-dataset/data/clotho_dataset_eva/*", "/content/audio-captioning-dcase/clotho-dataset/data/data_splits_features/evaluation"])
-
-        #subprocess.run(["cp", "-rf", "/content/audio-captioning-dcase/wavetransformer/data/WT_pickles", "/content/audio-captioning-dcase/clotho-dataset/data/WT_pickles"])
-
-        #subprocess.run(["cp", "-r", "/content/audio-captioning-dcase/clotho-dataset/data/data_splits_features/evaluation", "/content/audio-captioning-dcase/clotho-dataset/data/data_splits_features/validation"])
-        #subprocess.run(["cp", "-r", "/content/audio-captioning-dcase/clotho-dataset/data/clotho_audio_files/evaluation", "/content/audio-captioning-dcase/clotho-dataset/data/clotho_audio_files/validation"])
-        #subprocess.run(["cp", "/content/audio-captioning-dcase/clotho-dataset/data/clotho_csv_files/clotho_captions_evaluation.csv", "/content/audio-captioning-dcase/clotho-dataset/data/clotho_csv_files/clotho_captions_validation.csv"])
 
 
     def feature_extraction(audio_data: np.ndarray, sr: int, nb_fft: int,
@@ -440,14 +424,6 @@
             is_training=False,
             settings_data=settings_data,
             settings_io=settings_io)
-        
-        for pppp in get_clotho_loader(
-                settings_io['dataset']['features_dirs']['evaluation'],
-                is_training=False,
-                settings_data=settings_data,
-                settings_io=settings_io):
-            logger_main.info("data sample: {}", pppp)
-            break
 
         logger_main.info('Done')
 
