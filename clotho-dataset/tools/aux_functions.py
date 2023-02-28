@@ -60,7 +60,7 @@ def create_split_data(dir_split: Path,
             continue
 
         audio = load_audio_file(
-            audio_file=str(dir_root.joinpath(dir_audio, filename)),
+            audio_file=str(filename),
             sr=int(settings_audio['sr']), mono=settings_audio['to_mono'])
 
         np_rec_array = np.rec.array(np.array(
