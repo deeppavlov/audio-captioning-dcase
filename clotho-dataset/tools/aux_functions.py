@@ -231,8 +231,6 @@ def create_split_data(dir_split: Path,
     :type dir_split: pathlib.Path
     :param dir_audio: Directory of the audio files for the split.
     :type dir_audio: pathlib.Path
-    :param dir_root: Root directory of data.
-    :type dir_root: pathlib.Path
     :param settings_audio: Settings for the audio.
     :type settings_audio: dict
     :param settings_output: Settings for the output files.

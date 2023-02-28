@@ -226,28 +226,6 @@
 
         dir_root = Path(settings_dataset['directories']['root_dir'])
 
-        main_logger.info('Reading annotations files')
-        csv_dev, csv_eva = get_annotations_files(
-            settings_ann=settings_dataset['annotations'],
-            dir_ann=dir_root.joinpath(settings_dataset['directories']['annotations_dir']))
-        main_logger.info('Done')
-
-        main_logger.info('Getting the captions')
-        captions_development = [
-            csv_field.get(
-            settings_dataset['annotations']['captions_fields_prefix'].format(c_ind))
-            for csv_field in csv_dev
-            for c_ind in range(1, 6)]
-        main_logger.info('Done')
-
-        main_logger.info('Creating and saving words and chars lists '
-                'and frequencies')
-        words_list, chars_list = create_lists_and_frequencies(
-            captions=captions_development, dir_root=dir_root,
-            settings_ann=settings_dataset['annotations'],
-            settings_cntr=settings_dataset['counters'])
-        main_logger.info('Done')
-
         split_func = partial(
             create_split_data,
             settings_audio=settings_dataset['audio'],
