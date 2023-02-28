@@ -68,7 +68,7 @@ def create_split_data(dir_split: Path,
             dtype=[
                 ('file_name', 'U{}'.format(len(filename))),
                 ('audio_data', np.dtype(object)),
-                ('words_ind', np.dtype(object))
+                ('words_ind', np.ndarray)
             ]
         ))
 
