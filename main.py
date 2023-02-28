@@ -156,7 +156,7 @@
                 "data": {
                     "use_validation_split": False,
                     "input_field_name": "features",
-                    "output_field_name": "words_ind",
+                    'output_field_name': 'words_ind',
                     "load_into_memory": False,
                     "batch_size": 1,
                     "shuffle": True,
@@ -192,7 +192,7 @@
                     "files": {
                         "np_file_name_template": 'clotho_file_{audio_file_name}_{caption_index}.npy',
                         "words_list_file_name": 'WT_words_list.p',
-                        "characters_list_file_name": 'WT_characters_list.p'
+                        "characters_list_file_name": 'WT_character_list.p'
                     }
                 },
                 "model": {
@@ -281,8 +281,8 @@
                 array_data += (data_file['audio_data'].item(), )
                 dtypes.append(('audio_data', data_file['audio_data'].dtype))
 
-            array_data += (features)
-            dtypes.extend([('features', np.dtype(object))])
+            array_data += (features, data_file['words_ind'].item(),)
+            dtypes.extend([('features', np.ndarray), ('words_ind', data_file['words_ind'].dtype)])
 
             main_logger.info("adata with features: {}", array_data)
 
@@ -453,10 +453,9 @@
             settings_files['dataset']['pickle_files_dir'])
         print(settings_files['root_dirs']['model_data'])
         print(settings_files['dataset']['pickle_files_dir'])
-        p_field = 'words_list_file_name' \
-            if settings_data['output_field_name'].startswith('words') \
-            else 'characters_list_file_name'
-        indices_filename = path.joinpath(settings_files['dataset']['files'][p_field])
+        indices_filename = path.joinpath(settings_files['root_dirs']['data'],
+                                         settings_files['dataset']['pickle_files_dir'],
+                                         settings_files['dataset']['files']['characters_list_file_name'])
         
         return file_io.load_pickle_file(indices_filename)
 
