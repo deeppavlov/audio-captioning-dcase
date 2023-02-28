@@ -219,7 +219,7 @@ def create_lists_and_frequencies(captions: MutableSequence[str],
      for obj, obj_f_name in zip(obj_list, obj_f_names)]
 
     return words_list, chars_list
-dir_root
+
 
 def create_split_data(dir_split: Path,
                       dir_audio: Path, dir_root: Path,
