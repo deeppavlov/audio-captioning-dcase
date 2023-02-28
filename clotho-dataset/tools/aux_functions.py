@@ -239,10 +239,8 @@ def create_split_data(dir_split: Path,
     :type settings_output: dict
     """
 
-    dir_split = dir_root.joinpath(dir_split)
-    dir_audio = dir_root.joinpath(dir_audio)
-
-    dir_split.mkdir(parents=True, exist_ok=True)
+    dir_root.joinpath(dir_split).mkdir(parents=True, exist_ok=True)
+    dir_root.joinpath(dir_audio).mkdir(parents=True, exist_ok=True)
 
     for filename in os.listdir(dir_audio):
         file_name_audio = os.path.join(dir_audio, filename)
