@@ -355,11 +355,7 @@ def _do_inference(model: Module,
     logger_main = logger.bind(is_caption=False, indent=1)
 
     logger_main.info('Getting inference data')
-    inference_data = get_clotho_loader(
-        settings_io['dataset']['features_dirs']['output'],
-        is_training=False,
-        settings_data=settings_data,
-        settings_io=settings_io)
+    inference_data = get_clotho_loader(settings_data=settings_data, settings_io=settings_io)
 
     logger_main.info('Done')
 

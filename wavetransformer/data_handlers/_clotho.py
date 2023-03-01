@@ -29,7 +29,6 @@ class ClothoDataset(Dataset):
 
     def __init__(self,
                  data_dir: Path,
-                 split: str,
                  input_field_name: str,
                  output_field_name: str,
                  load_into_memory: bool,
