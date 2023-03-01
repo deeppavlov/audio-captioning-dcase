@@ -38,8 +38,6 @@ class ClothoDataset(Dataset):
 
         :param data_dir: Data directory with Clotho dataset files.
         :type data_dir: pathlib.Path
-        :param split: The split to use (`development`, `validation`)
-        :type split: str
         :param input_field_name: Field name for the input values
         :type input_field_name: str
         :param output_field_name: Field name for the output (target) values.
@@ -54,12 +52,11 @@ class ClothoDataset(Dataset):
         :type validation_files: list[pathlib.Path] | None, optional
         """
         super(ClothoDataset, self).__init__()
-        the_dir = data_dir.joinpath(split)
 
         self.multiple_captions_mode = multiple_captions_mode
 
         self.examples: List[Path] = sorted([
-            i for i in the_dir.iterdir() if i.suffix == '.npy'])
+            i for i in data_dir.iterdir() if i.suffix == '.npy'])
 
         if self.multiple_captions_mode:
             self.examples: List[List[Path]] = [
