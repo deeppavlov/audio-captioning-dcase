@@ -199,8 +199,7 @@ def prepare_dataset():
                       settings_dataset['audio'], settings_dataset['output_files'])
     main_logger.info('Done')
 
-    nb_files_audio = get_amount_of_file_in_dir(
-    dir_root.joinpath(settings_dataset['directories']['downloaded_audio_dir']))
+    nb_files_audio = get_amount_of_file_in_dir(dir_root.joinpath(dir_audio))
     nb_files_data = get_amount_of_file_in_dir(dir_out)
 
     main_logger.info('Amount of audio files: {}'.format(nb_files_audio))
