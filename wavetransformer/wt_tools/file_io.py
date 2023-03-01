@@ -91,20 +91,6 @@ def load_pickle_file(file_name, encoding='latin1'):
         return pickle.load(f, encoding=encoding)
 
 
-def load_settings_file(file_name, settings_dir=pathlib.Path('settings')):
-    """Reads and returns the contents of a YAML settings file.
-
-    :param file_name: Name of the settings file.
-    :type file_name: pathlib.Path
-    :param settings_dir: Directory with the settings files.
-    :type settings_dir: pathlib.Path
-    :return: Contents of the YAML settings file.
-    :rtype: dict
-    """
-    settings_file_path = settings_dir.joinpath(file_name.with_suffix('.yaml'))
-    return load_yaml_file(settings_file_path)
-
-
 def read_txt_file(file_name):
     """Reads a text (.txt) file and returns the contents.
 

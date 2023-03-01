@@ -12,8 +12,7 @@ from torch.nn import Module
 from torch.nn.utils import clip_grad_norm_
 from torch.utils.data import DataLoader
 from torch.optim.optimizer import Optimizer
-from torch.optim.lr_scheduler import CosineAnnealingLR 
-from models import WaveTransformer3, WaveTransformer8, WaveTransformer10
+from models import WaveTransformer3
 __author__ = 'Konstantinos Drossos -- Tampere University'
 __docformat__ = 'reStructuredText'
 __all__ = ['get_device', 'get_model',
@@ -63,10 +62,6 @@ def get_model(settings_model: MutableMapping[str, Union[str, MutableMapping]],
 
     if model_name == 'wave_transformer_3':
         model = WaveTransformer3
-    elif model_name == 'wave_transformer_8':
-        model = WaveTransformer8
-    elif model_name == 'wave_transformer_10':
-        model = WaveTransformer10
     else:
         raise AttributeError(f'Unknown model type '
                              f'{settings_model["model_name"]}.')
@@ -148,8 +143,6 @@ def module_epoch_passing(data: DataLoader,
                                     norm_type=grad_norm)
                 loss.backward()
                 optimizer.step()
-                # scheduler.step()
-                # plot_grad_flow(module.named_parameters())
 
             objective_output[i] = loss.item()
         except TypeError:

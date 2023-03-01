@@ -104,22 +104,4 @@ def load_pickle_file(file_name: Path, encoding: Optional[str] = 'latin1') -> Any
     with open(str_file_name, 'rb') as f:
         return pickle.load(f, encoding=encoding)
 
-
-def load_settings_file(file_name: str,
-                       settings_dir: Optional[Path] = Path('settings')) \
-        -> Dict[str, Any]:
-    """Reads and returns the contents of a YAML settings file.
-
-    :param file_name: The name of the settings file.
-    :type file_name: str
-    :param settings_dir: The directory with the settings files.
-    :type settings_dir: pathlib.Path|str
-    :return: The contents of the YAML settings file.
-    :rtype: dict
-    """
-    settings_dir = Path(settings_dir) \
-        if type(settings_dir) == str else settings_dir
-    settings_file_path = settings_dir.joinpath('{}.yaml'.format(file_name))
-    return load_yaml_file(settings_file_path)
-
 # EOF
