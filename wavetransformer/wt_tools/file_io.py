@@ -3,11 +3,9 @@
 
 import pathlib
 import pickle
-import yaml
 import numpy as np
 from librosa import load
 
-from tools import yaml_loader
 
 __author__ = 'Konstantinos Drossos -- Tampere University'
 __docformat__ = 'reStructuredText'
@@ -105,18 +103,6 @@ def load_settings_file(file_name, settings_dir=pathlib.Path('settings')):
     """
     settings_file_path = settings_dir.joinpath(file_name.with_suffix('.yaml'))
     return load_yaml_file(settings_file_path)
-
-
-def load_yaml_file(file_path):
-    """Reads and returns the contents of a YAML file.
-
-    :param file_path: Path to the YAML file.
-    :type file_path: pathlib.Path
-    :return: Contents of the YAML file.
-    :rtype: dict
-    """
-    with file_path.open('r') as f:
-        return yaml.load(f, Loader=yaml_loader.YAMLLoader)
 
 
 def read_txt_file(file_name):
