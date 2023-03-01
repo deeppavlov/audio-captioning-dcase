@@ -5,12 +5,9 @@ from typing import Optional, Union, Dict, Any
 from pathlib import Path
 import os
 import pickle
-import yaml
 
 from librosa import load
 import numpy as np
-
-from tools import yaml_loader
 
 __author__ = 'Konstantinos Drossos -- Tampere University'
 __docformat__ = 'reStructuredText'
@@ -124,20 +121,5 @@ def load_settings_file(file_name: str,
         if type(settings_dir) == str else settings_dir
     settings_file_path = settings_dir.joinpath('{}.yaml'.format(file_name))
     return load_yaml_file(settings_file_path)
-
-
-def load_yaml_file(file_path: Path) -> Dict[str, Any]:
-    """Reads and returns the contents of a YAML file.
-
-    :param file_path: The path to the YAML file.
-    :type file_path: pathlib.Path|str
-    :return: The contents of the YAML file.
-    :rtype: dict
-    """
-    if type(file_path) == str:
-        file_path = Path(file_path)
-
-    with file_path.open('r') as f:
-        return yaml.load(f, Loader=yaml_loader.YAMLLoader)
 
 # EOF
