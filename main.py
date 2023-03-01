@@ -191,16 +191,17 @@ def prepare_dataset():
     main_logger.info('Starting dataset creation')
 
     dir_root = Path(settings_dataset['directories']['root_dir'])
+    dir_out = Path(settings_dataset['output_files']['dir_output'])
+    dir_audio = Path(settings_dataset['directories']['downloaded_audio_dir'])
 
     main_logger.info('Creating the .npy files')
-    create_split_data(settings_dataset['output_files']['dir_output'], 
-                        settings_dataset['directories']['downloaded_audio_dir'], dir_root, 
-                        settings_dataset['audio'], settings_dataset['output_files'])
+    create_split_data(dir_out, dir_audio, dir_root, 
+                      settings_dataset['audio'], settings_dataset['output_files'])
     main_logger.info('Done')
 
     nb_files_audio = get_amount_of_file_in_dir(
     dir_root.joinpath(settings_dataset['directories']['downloaded_audio_dir']))
-    nb_files_data = get_amount_of_file_in_dir(settings_dataset['output_files']['dir_output'])
+    nb_files_data = get_amount_of_file_in_dir(dir_out)
 
     main_logger.info('Amount of audio files: {}'.format(nb_files_audio))
     main_logger.info('Amount of data files: {}'.format(nb_files_data))
@@ -210,7 +211,7 @@ def prepare_dataset():
 
     main_logger.info('Dataset created')
 
-    dir_output = dir_root.joinpath(settings_dataset['output_files']['dir_output'])
+    dir_output = dir_root.joinpath(dir_out)
 
     for data_file_name in filter(lambda _x: _x.suffix == settings_features['data_files_suffix'],
                                 dir_output.iterdir()):
