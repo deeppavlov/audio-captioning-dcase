@@ -58,9 +58,7 @@ def _clotho_collate_fn(batch: MutableSequence[ndarray]) \
     return input_tensor, output_tensor, file_names
 
 
-def get_clotho_loader(split: str,
-                      is_training: bool,
-                      settings_data: MutableMapping[
+def get_clotho_loader(settings_data: MutableMapping[
                           str, Union[str, bool, MutableMapping[str, str]]],
                       settings_io: MutableMapping[
                           str, Union[str, bool, MutableMapping[
@@ -83,34 +81,19 @@ def get_clotho_loader(split: str,
         settings_io['root_dirs']['data'],
         settings_io['dataset']['features_dirs']['output'])
 
-    if settings_data['use_validation_split'] and split != 'evaluation':
-        validation_files_path = Path(
-            settings_io['root_dirs']['data'],
-            settings_io['dataset']['pickle_files_dir'],
-            settings_io['dataset']['files']['validation_files_file_name'])
-        validation_files_path = load_pickle_file(validation_files_path)
-        validation_files = [Path(i) for i in validation_files_path]
-    else:
-        validation_files = None
-
     dataset = ClothoDataset(
         data_dir=data_dir,
-        split=split,
         input_field_name=settings_data['input_field_name'],
         output_field_name=settings_data['output_field_name'],
         load_into_memory=settings_data['load_into_memory'],
-        multiple_captions_mode=settings_data['use_multiple_mode'],
-        validation_files=validation_files)
-
-    shuffle = settings_data['shuffle'] if is_training else False
-    drop_last = settings_data['drop_last']
+        multiple_captions_mode=settings_data['use_multiple_mode'],)
 
     return DataLoader(
         dataset=dataset,
         batch_size=settings_data['batch_size'],
-        shuffle=shuffle if split == 'development' else False,
+        shuffle=False,
         num_workers=settings_data['num_workers'],
-        drop_last=drop_last if split == 'development' else False,
+        drop_last=False,
         collate_fn=_clotho_collate_fn)
 
 # EOF

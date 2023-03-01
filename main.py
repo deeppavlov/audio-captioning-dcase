@@ -13,11 +13,15 @@
 !echo "--------------------------------installing dependencies...--------------------------------"
 !pip install -r /content/audio-captioning-dcase/wavetransformer/requirement_pip.txt
 
-!echo "--------------------------------copying partial dataset from google drive...--------------------------------"
-!cp -r /content/drive/MyDrive/dcasePart/evaluation/* /content/audio-captioning-dcase/wavetransformer/data/clotho_audio_files/
+!mkdir /content/data/
+!mkdir /content/data/clotho_dataset/
 
-!cp -r /content/audio-captioning-dcase/clotho-dataset/data /content/
+!echo "--------------------------------copying partial dataset from google drive...--------------------------------"
+!cp -r /content/drive/MyDrive/dcasePart/evaluation/ /content/data/clotho_audio_files/
+
+!cp -r /content/audio-captioning-dcase/clotho-dataset/data/* /content/data
 !rm -f /content/data/data_splits_features/.dummy
+!mv /content/audio-captioning-dcase/wavetransformer/data/WT_pickles/* /content/data/WT_pickles
 
 # EMULATING DOCKERFILE
 
@@ -26,11 +30,6 @@ import sys
 import numpy as np
 import pandas as pd
 import shutil
-
-# sys.path.append("./aux_files/wavetransformer")
-# sys.path.append("./aux_files/wavetransformer/wt_tools")
-# sys.path.append("./aux_files/clotho-dataset/tools")
-# sys.path.append("./aux_files/clotho-dataset")
 
 sys.path.append("/content/audio-captioning-dcase/wavetransformer")
 sys.path.append("/content/audio-captioning-dcase/wavetransformer/wt_tools")
@@ -101,7 +100,7 @@ def prepare_dataset():
         "data_files_suffix": '.npy',
         "keep_raw_audio_data": False,
         "output": {
-            "dir_output": '/content/data',
+            "dir_output": '/content/data/clotho_dataset',
         },
         "process": {
             "sr": 44100,
@@ -145,9 +144,7 @@ def prepare_dataset():
                 'output_field_name': 'words_ind',
                 "load_into_memory": False,
                 "batch_size": 1,
-                "shuffle": True,
                 "num_workers": 30,
-                "drop_last": True,
                 "use_multiple_mode": False
             },
         },
@@ -191,7 +188,7 @@ def prepare_dataset():
     main_logger.info('Starting dataset creation')
 
     dir_root = Path(settings_dataset['directories']['root_dir'])
-    dir_out = Path(settings_dataset['output_files']['dir_output'])
+    dir_out = dir_root.joinpath(settings_dataset['output_files']['dir_output'])
     dir_audio = Path(settings_dataset['directories']['downloaded_audio_dir'])
 
     main_logger.info('Creating the .npy files')
@@ -234,7 +231,7 @@ def prepare_dataset():
 
         np_rec_array = np.rec.array([array_data], dtype=dtypes)
 
-        file_path = settings_features['output']['dir_output'].joinpath(data_file_name.name)
+        file_path = Path(settings_features['output']['dir_output']).joinpath(data_file_name.name)
 
         dump_numpy_object(np_rec_array, str(file_path)) # save to var, not to file
 
@@ -418,9 +415,7 @@ def method(settings: MutableMapping[str, Any]) -> None:
     logger_inner.info('Settings:\n'
                     f'{pretty_printer.pformat(settings)}\n')
     
-    model_indices_list = _load_indices_file(
-        settings['dirs_and_files'],
-        settings['dnn_training_settings']['data'])
+    model_indices_list = _load_indices_file(settings['dirs_and_files'])
     logger_inner.info('Done')
 
     model: Union[Module, None] = None
