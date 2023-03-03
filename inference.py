@@ -12,7 +12,7 @@ from sys import stdout
 from pathlib import Path
 from loguru import logger
 from librosa.feature import melspectrogram
-from aux_functions import get_amount_of_file_in_dir, create_split_data
+from tools.aux_functions import get_amount_of_file_in_dir, create_split_data
 from wt_tools.file_io import load_numpy_object, dump_numpy_object
 from typing import MutableMapping, MutableSequence,\
     Any, Union, List, Dict, Tuple
