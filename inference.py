@@ -3,10 +3,11 @@ import numpy as np
 import pandas as pd
 import shutil
 
-sys.path.append("./wavetransformer")
-sys.path.append("./wavetransformer/wt_tools")
-sys.path.append("./clotho-dataset/tools")
-sys.path.append("./clotho-dataset")
+sys.path.append("/src/aux_files")
+sys.path.append("/src/aux_files/clotho-dataset")
+sys.path.append("/src/aux_files/clotho-dataset/tools")
+sys.path.append("/src/aux_files/wavetransformer")
+sys.path.append("/src/aux_files/wavetransformer/wt_tools")
 
 from sys import stdout
 from pathlib import Path
