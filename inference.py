@@ -410,6 +410,6 @@ def infer(inference_params):
     settings_dataset, settings_features, config = \
         prepare_dataset(settings_dataset, 
                         settings_features, config, inference_params)
-    caps = method(config)
+    caps = method(config, caps)
 
     return caps
