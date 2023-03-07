@@ -2,6 +2,7 @@ import sys
 import numpy as np
 import pandas as pd
 import shutil
+import os
 
 sys.path.append("/src/aux_files")
 sys.path.append("/src/aux_files/clotho-dataset")
@@ -196,7 +197,8 @@ def prepare_dataset(settings_dataset, settings_features, config, inference_param
         np_rec_array = np.rec.array([array_data], dtype=dtypes)
 
         file_path = Path(settings_features['output']['dir_output']).joinpath(data_file_name.name)
-
+        if not os.path.exists(Path(settings_features['output']['dir_output'])):
+            os.makedirs(Path(settings_features['output']['dir_output']))
         dump_numpy_object(np_rec_array, str(file_path)) # save to var, not to file
 
 
