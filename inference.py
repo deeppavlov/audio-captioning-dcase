@@ -202,8 +202,8 @@ def prepare_dataset(settings_dataset, settings_features, config, inference_param
 
     main_logger.info('Features extracted')
 
-    shutil.move("/content/data/data_splits_features", "/content/data/data_splits_features_OLD")
-    shutil.move("/content/data/clotho_dataset", "/content/data/data_splits_features")
+    shutil.move("/src/data/data_splits_features", "/src/data/data_splits_features_OLD")
+    shutil.move("/src/data/clotho_dataset", "/src/data/data_splits_features")
 
     return settings_dataset, settings_features, config
 
