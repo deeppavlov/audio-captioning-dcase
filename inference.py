@@ -204,8 +204,11 @@ def prepare_dataset(settings_dataset, settings_features, config, inference_param
 
     main_logger.info('Features extracted')
 
-    shutil.move("/src/aux_files/data/data_splits_features", "/src/aux_files/data/data_splits_features_OLD")
-    shutil.move("/src/aux_files/data/clotho_dataset", "/src/aux_files/data/data_splits_features")
+    if not os.path.exists(Path("/src/aux_files/data/data_splits_features_OLD")):
+        os.makedirs(Path("/src/aux_files/data/data_splits_features_OLD"))
+
+    shutil.move("/src/aux_files/data/data_splits_features/*", "/src/aux_files/data/data_splits_features_OLD/")
+    shutil.move("/src/aux_files/data/clotho_dataset/*", "/src/aux_files/data/data_splits_features/")
 
     return settings_dataset, settings_features, config
 
