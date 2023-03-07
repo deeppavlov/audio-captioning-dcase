@@ -346,7 +346,7 @@ def _do_inference(model: Module,
 
     caps = pd.DataFrame(captions_pred)
     logger_main.info("caps: {}", caps)
-    caps = caps["caption_predicted"].iget(-1)
+    caps = caps["caption_predicted"].iloc[-1]
     logger_main.info("caps: {}", caps)
     return caps
     
