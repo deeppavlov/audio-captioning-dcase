@@ -408,7 +408,7 @@ def method(settings: MutableMapping[str, Any], caps) -> None:
 def infer(inference_params):
     caps = settings_dataset = settings_features = config = None
     settings_dataset, settings_features, config = \
-        prepare_dataset(caps, settings_dataset, 
+        prepare_dataset(settings_dataset, 
                         settings_features, config, inference_params)
     caps = method(config)
 
