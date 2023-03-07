@@ -340,7 +340,7 @@ def _do_inference(model: Module,
     logger_main.info('Inference done')
 
     caps = pd.DataFrame(captions_pred)
-    caps = caps.loc[0].at("caption_predicted")
+    caps = caps.loc[0].at["caption_predicted"]
     logger_main.info("caps: {}", caps)
     return caps
     
@@ -412,5 +412,4 @@ def infer(inference_params):
         prepare_dataset(settings_dataset, 
                         settings_features, config, inference_params)
     caps = method(config, caps)
-
     return caps
