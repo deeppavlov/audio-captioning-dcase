@@ -5,7 +5,7 @@ import os
 from AudioCaption.captioning.pytorch_runners.inference_waveform import inference
 
 
-def cycle_inference(audio_dir, model_path):
+def infer(audio_dir, model_path):
     def iteration(filename, filename_ix):
         print(f"Trying to infer on {filename}")
         cap = inference(
@@ -30,4 +30,4 @@ def cycle_inference(audio_dir, model_path):
 if __name__ == "__main__":
     audio_dir = '/home/ilia/projects/audio-captioning/AudioCaption/audiofiles'
     model_path = "/home/ilia/projects/audio-captioning/AudioCaption/experiments/clotho_v2/train_val/TransformerModel/cnn14rnn_trm/seed_1/swa.pth"
-    cycle_inference(audio_dir, model_path)
+    infer(audio_dir, model_path)
