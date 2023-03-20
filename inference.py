@@ -1,9 +1,13 @@
 import numpy as np
 import shutil
 import os
+import sys
+
+sys.path.append("/src/aux_files/AudioCaption/captioning")
+sys.path.append("/src/aux_files/AudioCaption")
+sys.path.append("/src/aux_files")
 
 from AudioCaption.captioning.pytorch_runners.inference_waveform import inference
-
 
 def infer(audio_dir, model_path):
     def iteration(filename, filename_ix):
