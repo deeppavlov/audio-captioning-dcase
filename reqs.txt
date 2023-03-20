@@ -1,0 +1,4 @@
+pip>=23.0.1
+llvmlite==0.31.0
+torchlibrosa==0.7
+numba==0.48
