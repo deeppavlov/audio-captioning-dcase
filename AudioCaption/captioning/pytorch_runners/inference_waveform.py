@@ -10,7 +10,6 @@ import numpy as np
 import pandas as pd
 import torch
 import kaldiio
-import partial
 
 import captioning.models
 import captioning.models.encoder
@@ -19,10 +18,7 @@ import captioning.utils.train_util as train_util
 
 
 def load_model(config, checkpoint):
-    import pickle
-    pickle.load = partial(pickle.load, encoding="latin1")
-    pickle.Unpickler = partial(pickle.Unpickler, encoding="latin1")
-    ckpt = torch.load(checkpoint, "cpu", pickle_module=pickle)
+    ckpt = torch.load(checkpoint, "cpu")
     encoder_cfg = config["model"]["encoder"]
     encoder = train_util.init_obj(
         captioning.models.encoder,
