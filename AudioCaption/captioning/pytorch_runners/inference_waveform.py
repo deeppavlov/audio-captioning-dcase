@@ -10,6 +10,7 @@ import numpy as np
 import pandas as pd
 import torch
 import kaldiio
+import partial
 
 import captioning.models
 import captioning.models.encoder
