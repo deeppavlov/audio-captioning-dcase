@@ -18,7 +18,10 @@ import captioning.utils.train_util as train_util
 
 
 def load_model(config, checkpoint):
-    ckpt = torch.load(checkpoint, "cpu")
+    import pickle
+    pickle.load = partial(pickle.load, encoding="latin1")
+    pickle.Unpickler = partial(pickle.Unpickler, encoding="latin1")
+    ckpt = torch.load(checkpoint, "cpu", pickle_module=pickle)
     encoder_cfg = config["model"]["encoder"]
     encoder = train_util.init_obj(
         captioning.models.encoder,
