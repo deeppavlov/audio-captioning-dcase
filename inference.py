@@ -29,9 +29,4 @@ def infer(audio_dir, model_path):
     else:
         caps.append(iteration(filenames, 0))
     print(f"caps: {caps}")
-
-
-if __name__ == "__main__":
-    audio_dir = '/home/ilia/projects/audio-captioning/AudioCaption/audiofiles'
-    model_path = "/home/ilia/projects/audio-captioning/AudioCaption/experiments/clotho_v2/train_val/TransformerModel/cnn14rnn_trm/seed_1/swa.pth"
-    infer(audio_dir, model_path)
+    return caps[0]
