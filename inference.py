@@ -21,12 +21,19 @@ def infer(audio_dir, model_path):
 
     filenames = os.listdir(audio_dir)
     filenames = list(filter(lambda file: file.split(".")[-1] in ['wav', 'mp3', 'flac'], filenames))
+    if len(filenames) == 1:
+        print("INFERENCE LOG - inferring on one file")
+        [filenames] = filenames
+    else:
+        print("INFERENCE LOG - inferring multiple files at a time")
     caps = []
 
     if isinstance(filenames, list):
         for filename_ix, filename in enumerate(filenames):
             caps.append(iteration(filename, filename_ix))
+        print(f"INFERENCE LOG - caps: {caps}")
+        return caps
     else:
-        caps.append(iteration(filenames, 0))
-    print(f"caps: {caps}")
-    return caps[0]
+        caps = iteration(filenames, 0)
+        print(f"INFERENCE LOG - cap: {caps}")
+        return caps
